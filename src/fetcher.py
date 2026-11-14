@@ -43,7 +43,6 @@ class PackageFetcher:
 
     def _get_real_dependencies(self, package_name: str, version: str) -> List[str]:
         """Получает зависимости из реального API PyPI."""
-        # Если версия не указана, берем последнюю
         url = f"{self.repo_url}/{package_name}/json"
         if version and version != "latest":
             url = f"{self.repo_url}/{package_name}/{version}/json"
@@ -51,16 +50,18 @@ class PackageFetcher:
         try:
             with urllib.request.urlopen(url, timeout=10) as response:
                 data = json.loads(response.read().decode())
-                # Извлекаем список requires_dist (это прямые зависимости)
                 requires = data.get("info", {}).get("requires_dist", [])
                 if not requires:
                     return []
                 
-                # Очищаем от версий (например, "requests>=2.0" -> "requests")
                 deps = []
                 for req in requires:
-                    # Берем только имя до первого пробела или знака сравнения
-                    dep_name = req.split(" ")[0].split("(")[0].split(";")[0].strip()
+                    # Берем только имя пакета, отбрасывая версии и условия
+                    dep_name = req.split(" ")[0]
+                    for char in ["<", ">", "=", "!", "~", ";", "(", ")"]:
+                        dep_name = dep_name.split(char)[0]
+                    dep_name = dep_name.strip()
+                    
                     if dep_name:
                         deps.append(dep_name)
                 return deps
