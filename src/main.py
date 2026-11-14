@@ -5,6 +5,7 @@ import sys
 
 from src.fetcher import PackageFetcher
 from src.graph import DependencyGraph
+from src.visualizer import GraphVisualizer
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -59,6 +60,11 @@ def parse_arguments() -> argparse.Namespace:
         default="", 
         help="Пакет, для которого ищем обратные зависимости"
     )
+    parser.add_argument(
+        "--d2", 
+        action="store_true", 
+        help="Вывести граф на языке диаграмм D2"
+    )
 
     args = parser.parse_args()
 
@@ -83,6 +89,7 @@ def main() -> None:
     print(f"filter: {args.filter}")
     print(f"reverse: {args.reverse}")
     print(f"target: {args.target}")
+    print(f"d2: {args.d2}")
     print("-------------------------\n")
 
     # Этап 3: Построение графа
@@ -95,11 +102,17 @@ def main() -> None:
     print("\n--- Граф зависимостей ---")
     graph.print_graph()
 
-    # Этап 4: Обратные зависимости (если запрошено)
+    # Этап 4: Обратные зависимости
     if args.reverse:
         print("\n--- Обратные зависимости ---")
         target_pkg = args.target if args.target else args.package
         graph.print_reverse_dependencies(target_pkg)
+
+    # Этап 5: Визуализация D2
+    if args.d2:
+        print("\n--- Диаграмма D2 ---")
+        visualizer = GraphVisualizer(graph.graph)
+        print(visualizer.generate_d2())
 
 
 if __name__ == "__main__":
