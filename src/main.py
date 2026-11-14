@@ -4,6 +4,7 @@ import argparse
 import sys
 
 from src.fetcher import PackageFetcher
+from src.graph import DependencyGraph
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -61,7 +62,7 @@ def main() -> None:
     """Точка входа в приложение."""
     args = parse_arguments()
     
-    # Вывод параметров (оставляем для проверки)
+    # Вывод параметров
     print("--- Параметры запуска ---")
     print(f"package: {args.package}")
     print(f"repo: {args.repo}")
@@ -71,18 +72,15 @@ def main() -> None:
     print(f"filter: {args.filter}")
     print("-------------------------\n")
 
-    # Сбор данных (Этап 2)
+    # Этап 3: Построение графа
     fetcher = PackageFetcher(args.repo, args.test_mode)
+    graph = DependencyGraph(fetcher)
     
-    print(f"Поиск прямых зависимостей для пакета '{args.package}'...")
-    dependencies = fetcher.get_dependencies(args.package, args.version)
+    print(f"Построение графа зависимостей для '{args.package}'...")
+    graph.build_dfs(args.package, args.version, args.max_depth, args.filter)
     
-    if not dependencies:
-        print("Прямых зависимостей не найдено (или произошла ошибка).")
-    else:
-        print("Прямые зависимости:")
-        for dep in dependencies:
-            print(f" - {dep}")
+    print("\n--- Граф зависимостей ---")
+    graph.print_graph()
 
 
 if __name__ == "__main__":
