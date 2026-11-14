@@ -53,6 +53,12 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true", 
         help="Режим вывода обратных зависимостей"
     )
+    parser.add_argument(
+        "--target", 
+        type=str, 
+        default="", 
+        help="Пакет, для которого ищем обратные зависимости"
+    )
 
     args = parser.parse_args()
 
@@ -76,6 +82,7 @@ def main() -> None:
     print(f"max_depth: {args.max_depth}")
     print(f"filter: {args.filter}")
     print(f"reverse: {args.reverse}")
+    print(f"target: {args.target}")
     print("-------------------------\n")
 
     # Этап 3: Построение графа
@@ -91,7 +98,8 @@ def main() -> None:
     # Этап 4: Обратные зависимости (если запрошено)
     if args.reverse:
         print("\n--- Обратные зависимости ---")
-        graph.print_reverse_dependencies(args.package)
+        target_pkg = args.target if args.target else args.package
+        graph.print_reverse_dependencies(target_pkg)
 
 
 if __name__ == "__main__":
