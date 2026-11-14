@@ -62,3 +62,18 @@ class DependencyGraph:
         for pkg, deps in self.graph.items():
             deps_str = ", ".join(deps) if deps else "нет"
             print(f"{pkg} -> {deps_str}")
+    def print_reverse_dependencies(self, target_package: str) -> None:
+        """Выводит пакеты, которые зависят от заданного (обратные связи)."""
+        reverse_deps = []
+        
+        # Проходим по всему графу
+        for pkg, deps in self.graph.items():
+            if target_package in deps:
+                reverse_deps.append(pkg)
+                
+        if reverse_deps:
+            print(f"Пакеты, которые зависят от '{target_package}':")
+            for pkg in reverse_deps:
+                print(f" - {pkg}")
+        else:
+            print(f"Пакетов, зависящих от '{target_package}', не найдено.")
